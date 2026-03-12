@@ -3,11 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.express as px
 
-# Load Dataset
 df1 = pd.read_csv('./datasets/Fireball_And_Bolide_Reports_rows.csv')
 df2 = pd.read_csv('./datasets/Meteorite_Landings.csv')
 
-# Add 'Type' Columns for easier filtering
+# Type column for easy filtering
 df1['Type'] = 'Fireball/Bolide'
 df2['Type'] = 'Meteorite'
 
@@ -21,7 +20,7 @@ def convert_latitude(lat_str):
     elif lat_str.endswith("S"):
         return -float(lat_str[:-1])
     else:
-        try: # Handle cases where it might already be a pure number
+        try: # Trying if pure number cases are founnd
             return float(lat_str)
         except ValueError:
             return np.nan
@@ -40,14 +39,13 @@ def convert_longitude(lon_str):
         except ValueError:
             return np.nan
 
-# Apply conversion functions FIRST
+# conversion of latitudes in format of data in CSV
 df1['Latitude'] = df1['Latitude (Deg)'].apply(convert_latitude) 
 df1['Longitude'] = df1['Longitude (Deg)'].apply(convert_longitude)
 
-# Create GeoLocation matching df2's format
 df1['GeoLocation'] = '(' + df1['Latitude'].astype(str) + ', ' + df1['Longitude'].astype(str) + ')'
 
-# Convert other columns to float safely
+# Convert columns to floating numbers for easy calculation
 cols_to_numeric_df1 = [
     'Altitude (km)', 'Velocity (km/s)', 
     'Velocity Components (km/s): vx',
@@ -63,10 +61,10 @@ for column in cols_to_numeric_df1:
 df1['Date/Time - Peak Brightness (UT)'] = pd.to_datetime(
     df1['Date/Time - Peak Brightness (UT)'], 
     format='mixed',
-    errors='coerce' # Removing the strict format constraint
+    errors='coerce' 
 )
 
-# Data Cleaning for df2 (Meteorite Landings)
+# Data Cleaning for df2 containing Meteorite Landings
 df2['Latitude'] = pd.to_numeric(df2['reclat'], errors='coerce')
 df2['Longitude'] = pd.to_numeric(df2['reclong'], errors='coerce')
 
@@ -89,7 +87,7 @@ df = pd.concat([df1, df2], ignore_index=True)
 yearly_counts = df1['Date/Time - Peak Brightness (UT)'].dt.year.value_counts().sort_index()
 
 if yearly_counts.empty:
-    print("Warning: The yearly_counts series is empty. Check your CSV date column!")
+    print("No CSV file was found")
 else:
     # Plot the data
     plt.figure(figsize=(10, 6))
@@ -105,10 +103,10 @@ else:
 
 ''' Landing over the years (excluding NA values) '''
 
-# isolate the column and count frequencies
+# count frequecy of each meteorite
 meteorite_counts = df['year'].value_counts().sort_index()
 
-# Smooth the data using a rolling window (3 years)
+# Smoothing the data for representation
 smoothed_counts = meteorite_counts.rolling(window=3).mean() 
 
 plt.figure(figsize=(10,6))
@@ -126,7 +124,7 @@ plt.ylabel('Number of Meteorite Landings', fontsize=12)
 plt.title('Meteorite Landings Over the Years', fontsize=14)
 plt.grid(True, linestyle='--', alpha=0.7)
 plt.legend()
-plt.xlim(1800, 2026) # Perfect limits to capture historical and recent data
+plt.xlim(1800, 2026) 
 
 plt.tight_layout()
 plt.show()
@@ -153,7 +151,7 @@ for class_name, count in filtered_value_counts.items():
 
 plt.show()
 
-# Cleaning the data: Drop rows where we don't have coordinates, and filter out (0, 0) coordinates means Missing Data called Null Island
+# Cleaning the data, deleting where latitude or longitude is zero
 map_data = df2.dropna(subset=['Latitude', 'Longitude'])
 map_data = map_data[(map_data['Latitude'] != 0) & (map_data['Longitude'] != 0)]
 
@@ -162,14 +160,14 @@ fig = px.scatter_geo(
     map_data,
     lat='Latitude',
     lon='Longitude',
-    hover_name='name',       # Shows the meteorite name when hovered
-    hover_data=['mass (g)', 'year', 'recclass'], # Extra details on hover
-    color_discrete_sequence=['red'], # Color the dots red
-    opacity=0.5,             # Make dots slightly transparent to see clusters
+    hover_name='name',       
+    hover_data=['mass (g)', 'year', 'recclass'], 
+    color_discrete_sequence=['red'], 
+    opacity=0.5,            
     title='Global Meteorite Landings'
 )
 
-# Customizing the map style
+# map style
 fig.update_geos(
     projection_type="natural earth",
     showcoastlines=True, coastlinecolor="Black",
