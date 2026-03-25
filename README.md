@@ -18,4 +18,12 @@ The analysis is built on two primary datasets:
 * **Composition Analysis:** Filtered and mapped the distribution of major meteorite classes, grouping statistical outliers for cleaner visualization.
 * **Global Impact Mapping:** Plotted verified meteorite landings and bolide atmospheric entries on a global map coordinate system.
 
-  
+## Results
+* ** visualising the discovery rate of meteorites over the last two centuries.
+![Meteorite Landings Over Time](images/landings.png)
+
+* **Composition Analysis:** Filtered and mapped the distribution of major meteorite classes, grouping statistical outliers for cleaner visualization.
+![Meteorite Classes Pie Chart](images/frequency_in_classes.png)
+
+* **Frequecy of Bolides over the years
+![Frequency of Bolides over the years](images/frequency_of_bolides.png)
